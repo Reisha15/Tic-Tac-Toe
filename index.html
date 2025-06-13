@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Multiplayer Tic Tac Toe</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: #0d47a1;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 12px;
+      background: #1976d2;
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .cell {
+      background-color: #fff;
+      border-radius: 12px;
+      font-size: 48px;
+      text-align: center;
+      line-height: 100px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease, transform 0.1s;
+      box-shadow: inset 0 0 5px #ccc;
+    }
+
+    .cell:hover {
+      background-color: #e3f2fd;
+      transform: scale(1.05);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #0d47a1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Multiplayer Tic Tac Toe</h1>
+  <div id="status">Player X's Turn</div>
+  <div id="board"></div>
+  <button onclick="restartGame()">🔄 Restart Game</button>
+
+  <!-- 🎉 Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const board = document.getElementById('board');
+    const statusDiv = document.getElementById('status');
+
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let cells = Array(9).fill(null);
+
+    function createBoard() {
+      board.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.setAttribute('data-index', i);
+        cell.addEventListener('click', handleCellClick);
+        board.appendChild(cell);
+      }
+    }
+
+    function handleCellClick(e) {
+      const index = e.target.getAttribute('data-index');
+      if (!gameActive || cells[index]) return;
+
+      cells[index] = currentPlayer;
+      e.target.textContent = currentPlayer;
+
+      if (checkWin(currentPlayer)) {
+        statusDiv.textContent = `🎉 Player ${currentPlayer} Wins!`;
+        gameActive = false;
+        launchConfetti(); // 🎉 Confetti when someone wins
+        return;
+      }
+
+      if (cells.every(cell => cell !== null)) {
+        statusDiv.textContent = "It's a Draw!";
+        gameActive = false;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      statusDiv.textContent = `Player ${currentPlayer}'s Turn`;
+    }
+
+    function checkWin(player) {
+      const winPatterns = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      return winPatterns.some(pattern =>
+        pattern.every(index => cells[index] === player)
+      );
+    }
+
+    function restartGame() {
+      currentPlayer = 'X';
+      gameActive = true;
+      cells = Array(9).fill(null);
+      statusDiv.textContent = `Player ${currentPlayer}'s Turn`;
+      createBoard();
+    }
+
+    function launchConfetti() {
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 }
+      });
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
